@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgeDash | Owner Control Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ["Inter","sans-serif"] } } }
+    };
+  </script>
+  <style>
+    * { font-family: "Inter", sans-serif; }
+    body { background: #f8fafc; }
+    .sl { transition: all .18s; cursor: pointer; }
+    .sl:hover { background: rgba(249,115,22,.08); color: #f97316; }
+    .sl.active { background: rgba(249,115,22,.13); color: #f97316; font-weight: 600; }
+    .card { transition: box-shadow .2s; }
+    .card:hover { box-shadow: 0 4px 24px rgba(249,115,22,.07); }
+    .btn-a { background: linear-gradient(135deg,#f97316,#ea580c); box-shadow: 0 2px 12px rgba(249,115,22,.28); transition: all .15s; }
+    .btn-a:hover { box-shadow: 0 4px 20px rgba(249,115,22,.4); transform: translateY(-1px); }
+    .tt { transition: background .2s; }
+    .seg-a { background: white; box-shadow: 0 1px 6px rgba(0,0,0,.1); color: #f97316; font-weight: 600; }
+    .bc { background: #dcfce7; color: #15803d; }
+    .bp { background: #fef9c3; color: #a16207; }
+    .bx { background: #fee2e2; color: #b91c1c; }
+    tr.dr:hover td { background: #fff7ed; }
+    tr.dr td { transition: background .12s; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+  </style>
+</head>
+<body class="h-full">
+<div id="root" class="h-full"></div>
+<script type="text/babel">
+// ── JWT Guard: redirect to login if no valid owner session ────────────
+function checkAuth() {
+  const token = sessionStorage.getItem('agedash_token');
+  const role  = sessionStorage.getItem('agedash_role');
+  if (!token || role !== 'owner') {
+    window.location.href = '/login';
+  }
+}
+checkAuth();
+window.addEventListener('pageshow', (e) => { if (e.persisted) checkAuth(); });
+const _ownerToken = sessionStorage.getItem('agedash_token');
+const _ownerEmail = sessionStorage.getItem('agedash_email') || 'owner@agedash.io';
+
+// MariaDB/Auth server runs on port 3001
+const DB_API = '';
+
+const { useState, useEffect } = React;
+
+// SVG icon paths (Heroicons/outline)
+const I = {
+  home:    "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+  shield:  "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+  cal:     "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  cog:     "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+  users:   "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
+  mail:    "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+  key:     "M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z",
+  send:    "M12 19l9 2-9-18-9 18 9-2zm0 0v-8",
+  zap:     "M13 10V3L4 14h7v7l9-11h-7z",
+  link:    "M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71 M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71",
+  eye:     "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z",
+  x:       "M6 18L18 6M6 6l12 12",
+  check:   "M5 13l4 4L19 7",
+  plus:    "M12 5v14M5 12h14",
+  cart:    "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z",
+  activity:"M22 12h-4l-3 9L9 3l-3 9H2",
+  bell:    "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
+  menu:    "M4 6h16M4 12h16M4 18h16",
+  plug:    "M7 2v11m10-11v11M5 8h14M5 16a7 7 0 0014 0H5z",
+  logout:  "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1",
+  save:    "M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4",
+  trash:   "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16",
+};
+
+function Ico({ d, size=18 }) {
+  return (
+    <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      {d.split(' M').map((p, i) => <path key={i} d={i===0?p:'M'+p} />)}
+    </svg>
+  );
+}
+
+function Toggle({ on, set, label, desc }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-medium text-slate-800">{label}</p>
+        {desc && <p className="text-xs text-slate-400 mt-0.5">{desc}</p>}
+      </div>
+      <button onClick={() => set(!on)}
+        className={`relative w-12 h-6 rounded-full tt flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 ${on ? 'bg-orange-500' : 'bg-slate-200'}`}>
+        <span style={{transition:'transform .2s'}} className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm ${on ? 'translate-x-6' : 'translate-x-0'}`} />
+      </button>
+    </div>
+  );
+}
+
+function Card({ title, iconD, children, className='' }) {
+  return (
+    <div className={`card bg-white rounded-2xl border border-slate-100 shadow-sm p-6 ${className}`}>
+      {title && (
+        <div className="flex items-center gap-2.5 mb-5">
+          {iconD && <span className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center"><Ico d={iconD} size={16} /></span>}
+          <h3 className="font-semibold text-slate-800 text-base">{title}</h3>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function Badge({ status }) {
+  const cls = status==='Confirmed'?'bc':status==='Pending'?'bp':'bx';
+  const dot = status==='Confirmed'?'bg-green-500':status==='Pending'?'bg-yellow-500':'bg-red-500';
+  return <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cls}`}><span className={`w-1.5 h-1.5 rounded-full ${dot}`}/>{status}</span>;
+}
+
+function Toast({ t }) {
+  if (!t) return null;
+  const bg = t.type==='error'?'bg-red-600':t.type==='warning'?'bg-amber-500':'bg-slate-900';
+  return <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-medium text-white ${bg}`}><Ico d={t.type==='error'?I.shield:t.type==='warning'?I.bell:I.check} size={16}/>{t.msg}</div>;
+}
+
+const MOCK = [
+  {id:'BK-001',name:'Sarah Chen',    email:'sarah@nexaflow.io',      date:'2026-07-02',start:'11:00',end:'11:30',status:'Confirmed'},
+  {id:'BK-002',name:'Markus Vogt',   email:'markus@globalledger.eu',  date:'2026-07-02',start:'14:00',end:'14:30',status:'Confirmed'},
+  {id:'BK-003',name:'Julian Rivera', email:'julian@bloomhealth.co',   date:'2026-07-03',start:'16:00',end:'16:30',status:'Pending'},
+  {id:'BK-004',name:'Aisha Patel',   email:'aisha@vertexai.in',       date:'2026-07-04',start:'13:00',end:'13:30',status:'Cancelled'},
+  {id:'BK-005',name:'Lena Hoffmann', email:'lena@synthwave.de',        date:'2026-07-05',start:'18:00',end:'18:30',status:'Confirmed'},
+];
+
+function App() {
+  const [sec, setSec]       = useState('overview');
+  const [mob, setMob]       = useState(false);
+  const [toast, setToast]   = useState(null);
+  // Security
+  const [emails, setEmails] = useState(['owner@agedash.io','admin@agedash.io']);
+  const [newEm, setNewEm]   = useState('');
+  const [csrf, setCsrf]     = useState(true);
+  const [otpEnabled, setOtpEnabled] = useState(false);
+  const [otp, setOtp]       = useState(null);
+  const [delivery, setDel]  = useState('SMTP');
+  const [smtpH, setSmtpH]   = useState('smtp.mailgun.org');
+  const [smtpP, setSmtpP]   = useState('587');
+  const [wh, setWh]         = useState('https://hooks.agedash.io/email');
+  // Prefs
+  const [cart, setCart]     = useState(true);
+  const [rUrl, setRUrl]     = useState('https://agedash.io/success');
+  const [rIn, setRIn]       = useState('https://agedash.io/success');
+  const [rSaved, setRS]     = useState(false);
+  const [mm, setMm]         = useState(false);
+  const [dbg, setDbg]       = useState(false);
+  const [enot, setEnot]     = useState(true);
+  // Bookings
+  const [bk, setBk]         = useState([]);
+  const [filt, setFilt]     = useState('All');
+
+  useEffect(() => {
+    fetch('/api/bookings')
+      .then(res => res.json())
+      .then(data => {
+        const formatted = data.map(b => ({
+          id: b.id,
+          name: b.name,
+          email: b.email,
+          date: b.date,
+          start: b.start_time,
+          end: b.end_time,
+          status: b.status || 'Confirmed'
+        })).reverse();
+        setBk(formatted);
+      })
+      .catch(err => console.error('Error fetching bookings:', err));
+
+    fetch(`${DB_API}/api/settings`, {
+      headers: { 'Authorization': `Bearer ${_agedashToken}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.otpEnabled !== undefined) setOtpEnabled(data.otpEnabled);
+      })
+      .catch(err => console.error('Error fetching settings:', err));
+  }, []);
+
+  const notify = (msg, type='success') => {
+    setToast({msg,type});
+    setTimeout(()=>setToast(null), 3000);
+  };
+  const addEm = () => {
+    const t = newEm.trim().toLowerCase();
+    if (!t||!t.includes('@')) return notify('Enter a valid email.','error');
+    if (emails.includes(t)) return notify('Already authorized.','error');
+    setEmails(p=>[...p,t]); setNewEm(''); notify(t+' authorized.');
+  };
+  const cancelBk = async (id) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      const res = await fetch(`/api/bookings/${id}/cancel`, { method: 'PUT' });
+      if (!res.ok) throw new Error('Failed to cancel');
+      setBk(p => p.map(b => b.id === id ? { ...b, status: 'Cancelled' } : b));
+      notify('Booking ' + id + ' cancelled.', 'warning');
+    } catch (err) {
+      notify('Failed to cancel booking.', 'error');
+    }
+  };
+  const saveR = () => { setRUrl(rIn); setRS(true); notify('Redirect URL saved.'); setTimeout(()=>setRS(false),2000); };
+
+  const filtered = filt==='All' ? bk : bk.filter(b=>b.status===filt);
+  const confirmed = bk.filter(b=>b.status==='Confirmed').length;
+  const pending   = bk.filter(b=>b.status==='Pending').length;
+
+  const NAV = [
+    {id:'overview', label:'Overview',       d:I.home},
+    {id:'security', label:'Security',       d:I.shield},
+    {id:'bookings', label:'Bookings',       d:I.cal},
+    {id:'queries',  label:'Search Queries', d:I.activity},
+    {id:'prefs',    label:'Preferences',    d:I.cog},
+    {id:'users',    label:'Users',          d:I.users},
+  ];
+
+  const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition";
+  const lbl = "block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5";
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-slate-50">
+      {mob && <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={()=>setMob(false)}/>}
+
+      {/* SIDEBAR */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 bg-white border-r border-slate-100 shadow-sm transition-transform duration-300 ${mob?'translate-x-0':'-translate-x-full lg:translate-x-0'}`}>
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100 flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow">
+            <span className="text-white font-bold text-base">A</span>
+          </div>
+          <div><p className="font-bold text-slate-900 text-sm">AgeDash</p><p className="text-[11px] text-slate-400">Owner Panel</p></div>
+        </div>
+        <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-0.5">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3 mb-2">Navigation</p>
+          {NAV.map(n=>(
+            <button key={n.id} onClick={()=>{setSec(n.id);setMob(false);}}
+              className={`sl w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${sec===n.id?'active':'text-slate-500'}`}>
+              <span className={sec===n.id?'text-orange-500':'text-slate-400'}><Ico d={n.d} size={17}/></span>
+              {n.label}
+              {n.id==='bookings'&&pending>0&&<span className="ml-auto bg-orange-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{pending}</span>}
+            </button>
+          ))}
+        </nav>
+        <div className="px-4 py-4 border-t border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-orange-50">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{_ownerEmail.charAt(0).toUpperCase()}</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-slate-800">Owner</p>
+              <p className="text-[11px] text-slate-400 truncate" title={_ownerEmail}>{_ownerEmail}</p>
+            </div>
+            <button onClick={() => { sessionStorage.clear(); window.location.href = '/login'; }} title="Sign out" className="text-slate-400 hover:text-orange-500 transition flex-shrink-0"><Ico d={I.logout} size={15}/></button>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="bg-white border-b border-slate-100 px-4 lg:px-8 py-3.5 flex items-center gap-4 flex-shrink-0">
+          <button className="lg:hidden text-slate-500 hover:text-orange-500" onClick={()=>setMob(true)}><Ico d={I.menu} size={22}/></button>
+          <div>
+            <h1 className="font-bold text-slate-900 text-lg">{NAV.find(n=>n.id===sec)?.label||'Dashboard'}</h1>
+            <p className="text-xs text-slate-400">AgeDash AI Systems — Control Panel</p>
+          </div>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="hidden sm:flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"/>System Online
+            </span>
+            <button className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-orange-50 hover:text-orange-500 text-slate-500 transition flex items-center justify-center"><Ico d={I.bell} size={16}/></button>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto px-4 lg:px-8 py-6">
+
+          {/* OVERVIEW */}
+          {sec==='overview' && (
+            <div className="space-y-6 max-w-6xl">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {label:'Total Bookings',   val:bk.length, d:I.cal,      col:'text-orange-500',bg:'bg-orange-50'},
+                  {label:'Confirmed',         val:confirmed,  d:I.check,   col:'text-green-600', bg:'bg-green-50'},
+                  {label:'Pending Review',    val:pending,    d:I.bell,    col:'text-yellow-600',bg:'bg-yellow-50'},
+                  {label:'Auth. Emails',      val:emails.length,d:I.mail,  col:'text-blue-600',  bg:'bg-blue-50'},
+                ].map(s=>(
+                  <div key={s.label} className="card bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                    <div className={`w-10 h-10 rounded-xl ${s.bg} ${s.col} flex items-center justify-center mb-3`}><Ico d={s.d} size={20}/></div>
+                    <p className="text-2xl font-bold text-slate-900">{s.val}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <Card title="Quick Actions" iconD={I.zap}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    {label:'View Bookings',  s:'bookings',d:I.cal},
+                    {label:'Security Config',s:'security', d:I.shield},
+                    {label:'Email Setup',    s:'security', d:I.mail},
+                    {label:'Preferences',   s:'prefs',    d:I.cog},
+                  ].map(a=>(
+                    <button key={a.label} onClick={()=>setSec(a.s)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-orange-300 hover:bg-orange-50 transition text-slate-500 hover:text-orange-600 group">
+                      <span className="w-9 h-9 rounded-lg bg-slate-100 group-hover:bg-orange-100 flex items-center justify-center transition"><Ico d={a.d} size={18}/></span>
+                      <span className="text-xs font-medium text-center">{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </Card>
+              <Card title="Recent Activity" iconD={I.activity}>
+                <div className="space-y-2">
+                  {bk.slice(0,4).map(b=>(
+                    <div key={b.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-orange-50 transition">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{b.name.charAt(0)}</div>
+                      <div className="flex-1 min-w-0"><p className="text-sm font-medium text-slate-800 truncate">{b.name}</p><p className="text-xs text-slate-400">{b.date} · {b.start}–{b.end}</p></div>
+                      <Badge status={b.status}/>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={()=>setSec('bookings')} className="mt-4 w-full text-center text-xs text-orange-500 font-semibold hover:text-orange-700 transition">View all bookings →</button>
+              </Card>
+            </div>
+          )}
+
+          {/* SECURITY */}
+          {sec==='security' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card title="Authorized Emails" iconD={I.mail}>
+                  <div className="flex gap-2 mb-4">
+                    <input type="email" value={newEm} onChange={e=>setNewEm(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addEm()} placeholder="name@company.com" className={inp}/>
+                    <button onClick={addEm} className="btn-a px-4 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-1.5"><Ico d={I.plus} size={15}/>Add</button>
+                  </div>
+                  <div className="space-y-2">
+                    {emails.map(em=>(
+                      <div key={em} className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-slate-50 rounded-xl group">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">{em.charAt(0).toUpperCase()}</span>
+                          <span className="text-sm text-slate-700 truncate">{em}</span>
+                        </div>
+                        <button onClick={()=>{setEmails(p=>p.filter(e=>e!==em));notify(em+' removed.','warning');}} className="text-slate-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><Ico d={I.x} size={15}/></button>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+                <Card title="OTP & Security" iconD={I.shield}>
+                  <div className="space-y-5">
+                    <Toggle on={otpEnabled} set={v=>{
+                      setOtpEnabled(v);
+                      fetch(`${DB_API}/api/settings`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_agedashToken}` },
+                        body: JSON.stringify({ otpEnabled: v })
+                      }).then(() => notify('OTP Login '+(v?'enabled':'disabled')+'.'));
+                    }} label="Require OTP for Login" desc="Enforce one-time passwords via email for all users during login."/>
+                    
+                    <Toggle on={csrf} set={v=>{setCsrf(v);notify('CSRF '+(v?'enabled':'disabled')+'.');}} label="Enforce CSRF Token Validation" desc="Protects endpoints from cross-site request forgery attacks."/>
+                    <div className="border-t border-slate-100 pt-5">
+                      <p className="text-sm font-medium text-slate-700 mb-1">Test OTP Generator</p>
+                      <p className="text-xs text-slate-400 mb-3">Simulate OTP delivery for debugging your email pipeline.</p>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <button onClick={()=>{const c=String(Math.floor(100000+Math.random()*900000));setOtp(c);notify('Test OTP: '+c);}} className="btn-a px-5 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-2"><Ico d={I.key} size={15}/>Generate OTP</button>
+                        {otp && <span className="font-mono font-bold text-orange-600 bg-orange-50 border border-orange-200 px-3 py-2 rounded-xl text-sm tracking-widest">{otp}</span>}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+              <Card title="Email Delivery Method" iconD={I.send}>
+                <div className="inline-flex bg-slate-100 rounded-xl p-1 mb-5 gap-1">
+                  {['SMTP','Webhook'].map(m=>(
+                    <button key={m} onClick={()=>setDel(m)} className={`px-6 py-2 rounded-lg text-sm font-medium transition ${delivery===m?'seg-a':'text-slate-500 hover:text-slate-700'}`}>{m}</button>
+                  ))}
+                </div>
+                {delivery==='SMTP' ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="sm:col-span-2"><label className={lbl}>SMTP Host</label><input value={smtpH} onChange={e=>setSmtpH(e.target.value)} className={inp}/></div>
+                      <div><label className={lbl}>Port</label><input value={smtpP} onChange={e=>setSmtpP(e.target.value)} className={inp}/></div>
+                      <div className="sm:col-span-2"><label className={lbl}>Username</label><input defaultValue="agedash@mg.agedash.io" className={inp}/></div>
+                      <div><label className={lbl}>Password</label><input type="password" defaultValue="secret" className={inp}/></div>
+                    </div>
+                    <button onClick={()=>notify('SMTP settings saved.')} className="btn-a px-5 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-2"><Ico d={I.save} size={15}/>Save SMTP</button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div><label className={lbl}>Webhook URL</label><input value={wh} onChange={e=>setWh(e.target.value)} className={inp+' font-mono'}/></div>
+                    <div className="flex gap-3 flex-wrap">
+                      <button onClick={()=>notify('Webhook URL saved.')} className="btn-a px-5 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-2"><Ico d={I.save} size={15}/>Save Webhook</button>
+                      <button onClick={()=>notify('Test event sent.','warning')} className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition flex items-center gap-2"><Ico d={I.send} size={14}/>Send Test</button>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
+
+          {/* BOOKINGS */}
+          {sec==='bookings' && (
+            <div className="space-y-4 max-w-6xl">
+              <Card title="Recent Bookings" iconD={I.cal}>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {['All','Confirmed','Pending','Cancelled'].map(f=>(
+                    <button key={f} onClick={()=>setFilt(f)} className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition ${filt===f?'bg-orange-500 text-white border-orange-500':'bg-white text-slate-500 border-slate-200 hover:border-orange-300 hover:text-orange-500'}`}>
+                      {f}{f!=='All'&&<span className="opacity-70 ml-1">{bk.filter(b=>b.status===f).length}</span>}
+                    </button>
+                  ))}
+                  <span className="ml-auto text-xs text-slate-400 self-center">{filtered.length} record{filtered.length!==1?'s':''}</span>
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-slate-100">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-100">
+                        {['Booking ID','Customer','Email','Date','Time Slot','Status','Actions'].map(h=>(
+                          <th key={h} className="text-left px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filtered.map((b,i)=>(
+                        <tr key={b.id} className={`dr ${i%2===1?'bg-slate-50/40':''}`}>
+                          <td className="px-4 py-3 font-mono text-xs font-bold text-orange-600 whitespace-nowrap">{b.id}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{b.name.charAt(0)}</div>
+                              <span className="font-medium text-slate-800">{b.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">{b.email}</td>
+                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{b.date}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{b.start} – {b.end}</td>
+                          <td className="px-4 py-3 whitespace-nowrap"><Badge status={b.status}/></td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center gap-1">
+                              <button onClick={()=>notify('Viewing '+b.id)} className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-400 hover:text-orange-500 transition" title="View"><Ico d={I.eye} size={14}/></button>
+                              {b.status!=='Cancelled'&&<button onClick={()=>cancelBk(b.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="Cancel"><Ico d={I.x} size={14}/></button>}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filtered.length===0&&<tr><td colSpan={7} className="px-4 py-12 text-center text-slate-400 text-sm">No bookings match this filter.</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* PREFERENCES */}
+          {sec==='prefs' && (
+            <div className="space-y-6 max-w-3xl">
+              <Card title="Cart System" iconD={I.cart}>
+                <div className="space-y-4">
+                  <Toggle on={cart} set={v=>{setCart(v);notify('Cart '+(v?'enabled':'disabled')+'.');}} label="Enable Cart System" desc="Allow users to queue items before checkout."/>
+                  {cart&&<div className="pt-2 border-t border-slate-100"><div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3"><Ico d={I.check} size={15}/><span className="text-xs font-semibold text-green-700">Cart is currently accepting orders</span></div></div>}
+                </div>
+              </Card>
+              <Card title="Post-Checkout Redirect URL" iconD={I.link}>
+                <p className="text-xs text-slate-400 mb-4">Users are redirected here after a successful booking or payment.</p>
+                <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                  <input type="url" value={rIn} onChange={e=>{setRIn(e.target.value);setRS(false);}} className={inp+' flex-1 min-w-0 font-mono'}/>
+                  <button onClick={saveR} className={`px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition flex-shrink-0 ${rSaved?'bg-green-500 text-white shadow':'btn-a text-white'}`}>
+                    <Ico d={I.check} size={15}/>{rSaved?'Saved!':'Save URL'}
+                  </button>
+                </div>
+                {rUrl&&<p className="mt-2.5 text-xs text-slate-400 flex items-center gap-1.5"><Ico d={I.link} size={12}/>Active: <span className="font-mono text-orange-600 truncate">{rUrl}</span></p>}
+              </Card>
+              <Card title="System Settings" iconD={I.cog}>
+                <div className="space-y-5">
+                  <Toggle on={mm} set={v=>{setMm(v);notify('Maintenance mode '+(v?'ON':'OFF')+'.',v?'warning':'success');}} label="Maintenance Mode" desc="Take the site offline for scheduled maintenance."/>
+                  <div className="border-t border-slate-100"/>
+                  <Toggle on={dbg} set={v=>{setDbg(v);notify('Debug logging '+(v?'enabled':'disabled')+'.');}} label="Debug Logging" desc="Write verbose logs for all API and booking requests."/>
+                  <div className="border-t border-slate-100"/>
+                  <Toggle on={enot} set={v=>{setEnot(v);notify('Email notifications '+(v?'enabled':'disabled')+'.');}} label="Email Notifications" desc="Send owner email for each new booking confirmation."/>
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* USERS — Full Management Section */}
+          {sec==='users' && (
+            <UserManagement token={_ownerToken} notify={notify} />
+          )}
+
+
+          {/* SEARCH QUERIES — MariaDB Analytics */}
+          {sec==='queries' && (
+            <SearchQueries token={_ownerToken} />
+          )}
+
+        </main>
+      </div>
+      <Toast t={toast}/>
+    </div>
+  );
+}
+
+function SearchQueries({ token }) {
+  const [rows, setRows]       = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+  const [filter, setFilter]   = useState('');
+  const [dbStatus, setDbStatus] = useState(null);
+
+  async function fetchQueries() {
+    setLoading(true); setError(null);
+    try {
+      // First check DB status
+      const st = await fetch(`${DB_API}/api/db/status`);
+      const sd = await st.json();
+      setDbStatus(sd.connected);
+      if (!sd.connected) {
+        setError('MariaDB is not connected. Fill in your .env credentials and restart the server.');
+        setLoading(false); return;
+      }
+      const res = await fetch(`${DB_API}/api/queries`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const data = await res.json();
+      setRows(data);
+    } catch(e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { fetchQueries(); }, []);
+
+  const filtered = rows.filter(r =>
+    r.user_email.toLowerCase().includes(filter.toLowerCase()) ||
+    r.search_query.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  function formatTS(ts) {
+    if (!ts) return '—';
+    try {
+      return new Date(ts).toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
+    } catch { return ts; }
+  }
+
+  return (
+    <div className="space-y-4 max-w-6xl">
+      <Card title="LinkedIn Search Query Analytics" iconD={I.activity}>
+        {/* Header controls */}
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <input
+            type="text"
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            placeholder="Filter by email or query..."
+            className="flex-1 min-w-[200px] px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
+          />
+          <button onClick={fetchQueries}
+            className="btn-a px-4 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-2">
+            <Ico d={I.activity} size={14}/> Refresh
+          </button>
+          <span className="ml-auto bg-orange-50 text-orange-600 border border-orange-200 text-xs font-bold px-3 py-1.5 rounded-full">
+            {filtered.length} record{filtered.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* DB offline warning */}
+        {dbStatus === false && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 mb-4">
+            <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">MariaDB Not Connected</p>
+              <p className="text-xs text-amber-600 mt-0.5">Copy <code className="font-mono bg-amber-100 px-1 rounded">.env.example</code> to <code className="font-mono bg-amber-100 px-1 rounded">.env</code>, fill in your DB credentials, and restart the server.</p>
+            </div>
+          </div>
+        )}
+
+        {/* States */}
+        {loading && (
+          <div className="flex items-center justify-center py-16 gap-3 text-slate-400">
+            <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <span className="text-sm">Loading search queries from database...</span>
+          </div>
+        )}
+        {!loading && error && dbStatus !== false && (
+          <div className="text-center py-14">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-3 text-red-400">
+              <Ico d={I.shield} size={22}/>
+            </div>
+            <p className="font-semibold text-slate-600 mb-1">Error loading data</p>
+            <p className="text-sm text-slate-400">{error}</p>
+            <button onClick={fetchQueries} className="mt-4 btn-a px-5 py-2 rounded-xl text-white text-sm font-semibold">Retry</button>
+          </div>
+        )}
+        {!loading && !error && filtered.length === 0 && (
+          <div className="text-center py-14">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-300">
+              <Ico d={I.activity} size={22}/>
+            </div>
+            <p className="font-semibold text-slate-500 mb-1">{rows.length === 0 ? 'No queries logged yet' : 'No results match your filter'}</p>
+            <p className="text-sm text-slate-400">{rows.length === 0 ? 'Queries will appear here when users run LinkedIn profile searches.' : 'Try clearing the search filter.'}</p>
+          </div>
+        )}
+
+        {/* Data Table */}
+        {!loading && !error && filtered.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  {['#','User Email','Search Query','Details','PDF Criteria','Timestamp'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filtered.map((row, i) => (
+                  <tr key={row.id} className={`dr ${i%2===1?'bg-slate-50/40':''}`}>
+                    <td className="px-4 py-3 font-mono text-xs font-bold text-orange-500 whitespace-nowrap">#{row.id}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{row.user_email.charAt(0).toUpperCase()}</div>
+                        <span className="text-slate-700 text-xs font-medium">{row.user_email}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 max-w-[220px]">
+                      <p className="text-slate-800 font-medium text-xs truncate" title={row.search_query}>{row.search_query}</p>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[180px]">
+                      <p className="truncate" title={row.details || '—'}>{row.details || <span className="text-slate-300">—</span>}</p>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
+                      {row.pdf_filename ? (
+                        <a 
+                          href={`${DB_API}${row.pdf_path}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-orange-500 hover:text-orange-600 hover:underline font-semibold"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">download</span>
+                          <span className="truncate max-w-[120px]" title={row.pdf_filename}>{row.pdf_filename}</span>
+                        </a>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-lg font-mono">{formatTS(row.timestamp)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+// ═══════════════════════════════════════════════════════════
+// UserManagement Component — admin user table + edit modal
+// ═══════════════════════════════════════════════════════════
+function UserManagement({ token, notify }) {
+  const [users, setUsers]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
+  const [filter, setFilter]     = useState('');
+  const [editUser, setEditUser] = useState(null); // user object being edited
+  const [editName, setEditName] = useState('');
+  const [editSheetUrl, setEditSheetUrl] = useState('');
+  const [editPwd, setEditPwd]   = useState('');
+  const [saving, setSaving]     = useState(false);
+
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [addEmail, setAddEmail] = useState('');
+  const [addPassword, setAddPassword] = useState('');
+  const [addName, setAddName] = useState('');
+  const [addRole, setAddRole] = useState('user');
+  const [isAdding, setIsAdding] = useState(false);
+
+  async function fetchUsers() {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(`${DB_API}/api/admin/users?t=${Date.now()}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      setUsers(await res.json());
+    } catch (e) { setError(e.message); }
+    finally { setLoading(false); }
+  }
+
+  useEffect(() => { fetchUsers(); }, []);
+
+  async function toggleVerify(user) {
+    try {
+      const res = await fetch(`${DB_API}/api/admin/users/${user.id}/verify`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ is_verified: !user.is_verified })
+      });
+      if (!res.ok) throw new Error('Failed');
+      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_verified: !u.is_verified } : u));
+      notify(`${user.email} ${!user.is_verified ? 'verified' : 'unverified'}.`);
+    } catch { notify('Failed to toggle verification.', 'error'); }
+  }
+
+  function openEdit(user) {
+    setEditUser(user);
+    setEditName(user.profile_name || '');
+    setEditSheetUrl(user.google_sheet_url || '');
+    setEditPwd('');
+  }
+
+  async function saveEdit() {
+    if (!editUser) return;
+    setSaving(true);
+    try {
+      // Update profile
+      if (editName !== (editUser.profile_name || '') || editSheetUrl !== (editUser.google_sheet_url || '')) {
+        const r1 = await fetch(`${DB_API}/api/admin/users/${editUser.id}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ profile_name: editName, google_sheet_url: editSheetUrl })
+        });
+        if (!r1.ok) throw new Error('Failed to update profile');
+      }
+      // Reset password if provided
+      if (editPwd.trim().length > 0) {
+        if (editPwd.trim().length < 4) { notify('Password must be at least 4 characters.', 'error'); setSaving(false); return; }
+        const r2 = await fetch(`${DB_API}/api/admin/users/${editUser.id}/password`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ new_password: editPwd.trim() })
+        });
+        if (!r2.ok) throw new Error('Failed to reset password');
+      }
+      notify('User updated successfully.');
+      setEditUser(null);
+      fetchUsers();
+    } catch (e) { notify(e.message, 'error'); }
+    finally { setSaving(false); }
+  }
+
+  async function handleAddUser() {
+    if (!addEmail || !addPassword) return notify('Email and Password are required.', 'error');
+    if (addPassword.length < 4) return notify('Password must be at least 4 characters.', 'error');
+    setIsAdding(true);
+    try {
+      const res = await fetch(`${DB_API}/api/admin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ email: addEmail.trim(), password: addPassword, profile_name: addName.trim(), role: addRole })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to create user');
+      notify('User created successfully.');
+      setIsAddingUser(false);
+      setAddEmail(''); setAddPassword(''); setAddName(''); setAddRole('user');
+      fetchUsers();
+    } catch (e) { notify(e.message, 'error'); }
+    finally { setIsAdding(false); }
+  }
+
+  async function deleteUser(user) {
+    if (!confirm(`Are you sure you want to completely delete ${user.email}?\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${DB_API}/api/admin/users/${user.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to delete user');
+      notify('User deleted successfully.');
+      fetchUsers();
+    } catch (e) { notify(e.message, 'error'); }
+  }
+
+
+  function formatTS(ts) {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }); }
+    catch { return ts; }
+  }
+
+  const filtered = users.filter(u =>
+    u.email.toLowerCase().includes(filter.toLowerCase()) ||
+    (u.profile_name || '').toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const inp = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition";
+
+  return (
+    <div className="space-y-4 max-w-6xl">
+      {/* Edit Modal Overlay */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditUser(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-800 text-base">Edit User</h3>
+              <button onClick={() => setEditUser(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"><Ico d={I.x} size={16}/></button>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white font-bold flex items-center justify-center flex-shrink-0">{editUser.email.charAt(0).toUpperCase()}</div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">{editUser.email}</p>
+                <p className="text-xs text-slate-400">ID: #{editUser.id} · {editUser.role}</p>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Display Name</label>
+              <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Enter profile name" className={inp} />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Google Sheet URL</label>
+              <input value={editSheetUrl} onChange={e => setEditSheetUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/d/..." className={inp} />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Reset Password</label>
+              <input type="password" value={editPwd} onChange={e => setEditPwd(e.target.value)} placeholder="Leave blank to keep current" className={inp} />
+              <p className="text-[10px] text-slate-400 mt-1">Minimum 4 characters. Will be securely hashed.</p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => setEditUser(null)} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+              <button onClick={saveEdit} disabled={saving} className="flex-1 btn-a py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+                {saving ? <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : <Ico d={I.save} size={14}/>}
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {isAddingUser && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsAddingUser(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-800 text-base">Create New User</h3>
+              <button onClick={() => setIsAddingUser(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"><Ico d={I.x} size={16}/></button>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Email Address *</label>
+              <input type="email" value={addEmail} onChange={e => setAddEmail(e.target.value)} placeholder="user@example.com" className={inp} />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Password *</label>
+              <input type="password" value={addPassword} onChange={e => setAddPassword(e.target.value)} placeholder="Minimum 4 characters" className={inp} />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Display Name (Optional)</label>
+              <input value={addName} onChange={e => setAddName(e.target.value)} placeholder="Full Name" className={inp} />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Role</label>
+              <select value={addRole} onChange={e => setAddRole(e.target.value)} className={inp}>
+                <option value="user">Standard User</option>
+                <option value="owner">Admin (Owner)</option>
+              </select>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => setIsAddingUser(false)} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+              <button onClick={handleAddUser} disabled={isAdding} className="flex-1 btn-a py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+                {isAdding ? <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : <Ico d={I.plus} size={14}/>}
+                {isAdding ? 'Creating...' : 'Create User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Card title="User Management" iconD={I.users}>
+        {/* Controls */}
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <input type="text" value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by email or name..."
+            className="flex-1 min-w-[200px] px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition" />
+          <button onClick={fetchUsers} className="btn-a px-4 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center gap-2">
+            <Ico d={I.activity} size={14}/> Refresh
+          </button>
+          <button onClick={() => setIsAddingUser(true)} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition shadow-sm">
+            <Ico d={I.plus} size={14}/> Add User
+          </button>
+          <span className="ml-auto bg-orange-50 text-orange-600 border border-orange-200 text-xs font-bold px-3 py-1.5 rounded-full">
+            {filtered.length} user{filtered.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* States */}
+        {loading && (
+          <div className="flex items-center justify-center py-16 gap-3 text-slate-400">
+            <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <span className="text-sm">Loading users from database...</span>
+          </div>
+        )}
+        {!loading && error && (
+          <div className="text-center py-14">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-3 text-red-400"><Ico d={I.shield} size={22}/></div>
+            <p className="font-semibold text-slate-600 mb-1">Error loading users</p>
+            <p className="text-sm text-slate-400">{error}</p>
+            <button onClick={fetchUsers} className="mt-4 btn-a px-5 py-2 rounded-xl text-white text-sm font-semibold">Retry</button>
+          </div>
+        )}
+        {!loading && !error && filtered.length === 0 && (
+          <div className="text-center py-14">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-300"><Ico d={I.users} size={22}/></div>
+            <p className="font-semibold text-slate-500 mb-1">{users.length === 0 ? 'No users registered yet' : 'No results match your filter'}</p>
+          </div>
+        )}
+
+        {/* Data Table */}
+        {!loading && !error && filtered.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  {['#','User','Profile Name','Role','Verified','Created','Actions'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filtered.map((u, i) => (
+                  <tr key={u.id} className={`dr ${i%2===1?'bg-slate-50/40':''}`}>
+                    <td className="px-4 py-3 font-mono text-xs font-bold text-orange-500 whitespace-nowrap">#{u.id}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{u.email.charAt(0).toUpperCase()}</div>
+                        <span className="text-slate-700 text-xs font-medium">{u.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 text-xs whitespace-nowrap">{u.profile_name || <span className="text-slate-300">—</span>}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${u.role === 'owner' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <button onClick={() => toggleVerify(u)} title={u.is_verified ? 'Click to unverify' : 'Click to verify'}
+                        className={`relative w-10 h-5 rounded-full transition flex-shrink-0 focus:outline-none ${u.is_verified ? 'bg-green-500' : 'bg-slate-200'}`}>
+                        <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${u.is_verified ? 'translate-x-5' : 'translate-x-0'}`}/>
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-lg font-mono">{formatTS(u.created_at)}</span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-400 hover:text-orange-500 transition" title="Edit"><Ico d={I.cog} size={14}/></button>
+                        <button onClick={() => deleteUser(u)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="Delete Account"><Ico d={I.trash} size={14}/></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+</script>
+</body>
+</html>

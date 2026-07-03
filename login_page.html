@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="scroll-smooth h-full" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Portal Login | AgeDash AI Systems</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#FFFFFF",
+                        "tertiary-fixed-dim": "#64748B",
+                        "primary-fixed-dim": "#FF9B51",
+                        "on-surface": "#1E293B",
+                        "surface-dim": "#F4F5F7",
+                        "tertiary-fixed": "#475569",
+                        "on-tertiary-fixed": "#FFFFFF",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#475569",
+                        "surface-bright": "#FFFFFF",
+                        "inverse-surface": "#0F172A",
+                        "background": "#F4F5F7",
+                        "primary-fixed": "#FF9B51",
+                        "on-tertiary-container": "#1E293B",
+                        "primary-container": "#FF9B51",
+                        "on-secondary-fixed": "#FFFFFF",
+                        "on-surface-variant": "#64748B",
+                        "error": "#ffb4ab",
+                        "on-primary": "#FFFFFF",
+                        "surface-container-high": "#FFFFFF",
+                        "surface-container": "#FFFFFF",
+                        "surface-tint": "#FF9B51",
+                        "surface-container-lowest": "#FFFFFF",
+                        "on-background": "#1E293B",
+                        "on-primary-container": "#FFFFFF",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#64748B",
+                        "secondary-fixed-dim": "#475569",
+                        "secondary": "#475569",
+                        "surface": "#FFFFFF",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#475569",
+                        "on-primary-fixed-variant": "#FFFFFF",
+                        "on-secondary": "#FFFFFF",
+                        "surface-container-low": "#FFFFFF",
+                        "tertiary": "#475569",
+                        "outline-variant": "#E2E8F0",
+                        "inverse-primary": "#FF9B51",
+                        "on-tertiary": "#FFFFFF",
+                        "tertiary-container": "#E2E8F0",
+                        "outline": "#CBD5E1",
+                        "secondary-container": "#E2E8F0",
+                        "on-primary-fixed": "#FFFFFF",
+                        "surface-container-highest": "#FFFFFF",
+                        "primary": "#FF9B51",
+                        "on-secondary-container": "#1E293B",
+                        "surface-variant": "#F8FAFC"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "margin-mobile": "16px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "xl": "64px",
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .edge-light {
+            position: relative;
+            padding: 1.5px;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: rgba(226, 232, 240, 0.5);
+        }
+
+        .edge-light::before {
+            content: '';
+            position: absolute;
+            inset: -1000%;
+            background: conic-gradient(from 0deg, transparent 70%, #ff9b51 70%, #ff9b51 100%);
+            animation: spin 4s linear infinite;
+            z-index: 0;
+        }
+
+        .edge-light-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop relative overflow-hidden h-full">
+
+    <!-- Back to Home Button -->
+    <a href="agedash_orange_accent.html" class="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center gap-2 text-slate-500 hover:text-primary transition font-semibold text-sm bg-white/60 px-4 py-2 rounded-xl backdrop-blur-md border border-slate-200 shadow-sm z-50 hover:bg-white">
+        <span class="material-symbols-outlined text-lg">arrow_back</span> Back to Home
+    </a>
+
+    <!-- Ambient Glowing Orbs -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-[-1]">
+        <div class="absolute top-[10%] left-[10%] w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[10%] right-[10%] w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Login Card Container -->
+    <div class="max-w-md w-full edge-light shadow-2xl">
+        <div class="edge-light-content glass border border-slate-200/50 p-8 md:p-10 flex flex-col justify-center bg-white">
+            <!-- Brand / Logo -->
+            <div class="mb-8 text-center">
+                <div class="inline-flex w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-orange-600 items-center justify-center shadow-lg mb-4">
+                    <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings: 'FILL' 1;">security</span>
+                </div>
+                <h2 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">AgeDash Portal</h2>
+                <p class="text-secondary text-body-md mt-2">Enter credentials to access your dashboard</p>
+            </div>
+
+            <!-- Error Alerts -->
+            <div id="error-alert" class="hidden mb-6 p-4 bg-error-container border border-error/20 rounded-xl text-error text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">error</span>
+                <span id="error-message">Invalid credentials. Please try again.</span>
+            </div>
+
+            <!-- Unified Form -->
+            <form id="login-form" class="space-y-6" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-label-md text-on-surface mb-2 font-semibold">Email Address</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">mail</span>
+                        <input type="email" id="email" required
+                            class="w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-800 pl-10 pr-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400"
+                            placeholder="name@company.com">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-label-md text-on-surface font-semibold">Password</label>
+                    </div>
+                    <div class="relative">
+                        <span class="material-symbols-outlined text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">lock</span>
+                        <input type="password" id="password" required
+                            class="w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-800 pl-10 pr-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn"
+                    class="w-full bg-primary text-white py-3.5 rounded-lg font-headline-md font-semibold hover:opacity-90 shadow-lg shadow-primary/20 transition-all mt-8 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <svg id="btn-spinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span class="material-symbols-outlined text-xl" id="btn-icon" style="font-variation-settings: 'FILL' 1;">login</span>
+                    <span id="btn-text">Sign In</span>
+                </button>
+            </form>
+
+            <!-- OTP Form (Initially Hidden) -->
+            <form id="otp-form" class="hidden space-y-6" onsubmit="handleVerifyOtp(event)">
+                <div class="text-center mb-4">
+                    <p class="text-sm text-slate-600">We've sent a 6-digit code to your email.</p>
+                </div>
+                <div>
+                    <label class="block text-label-md text-on-surface mb-2 font-semibold">Enter OTP</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">pin</span>
+                        <input type="text" id="otp-input" required maxlength="6" pattern="\d{6}"
+                            class="w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-800 pl-10 pr-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 tracking-widest font-mono text-center"
+                            placeholder="123456">
+                    </div>
+                </div>
+
+                <button type="submit" id="verify-btn"
+                    class="w-full bg-orange-600 text-white py-3.5 rounded-lg font-headline-md font-semibold hover:opacity-90 shadow-lg shadow-orange-600/20 transition-all mt-8 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <svg id="verify-spinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span id="verify-btn-text">Verify OTP</span>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-400">
+                    Admin access: use registered owner email.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auth API lives on the MariaDB server (port 3001)
+        const DB_API = '';
+
+        const loginBtn = document.getElementById('login-btn');
+        const btnText  = document.getElementById('btn-text');
+        const spinner  = document.getElementById('btn-spinner');
+        const errorAlert = document.getElementById('error-alert');
+        const errorMessage = document.getElementById('error-message');
+        let currentLoginEmail = '';
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('email').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+
+            if (!emailInput || !passwordInput) {
+                errorMessage.textContent = 'Please enter both email and password.';
+                errorAlert.classList.remove('hidden');
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
+            btnText.textContent = 'Signing in…';
+            spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${DB_API}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput, password: passwordInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.requireOtp) {
+                        currentLoginEmail = data.email;
+                        document.getElementById('login-form').classList.add('hidden');
+                        document.getElementById('otp-form').classList.remove('hidden');
+                    } else {
+                        // Store JWT and user info in sessionStorage (session-based)
+                        sessionStorage.setItem('agedash_token', data.token);
+                        sessionStorage.setItem('agedash_email', data.email);
+                        sessionStorage.setItem('agedash_role',  data.role);
+                        // Redirect to the appropriate dashboard
+                        window.location.href = data.redirect;
+                    }
+                } else {
+                    errorMessage.textContent = data.message || 'Invalid credentials. Please try again.';
+                    errorAlert.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMessage.textContent = 'Network error. Make sure the server is running on localhost:3000.';
+                errorAlert.classList.remove('hidden');
+            } finally {
+                loginBtn.disabled = false;
+                btnText.textContent = 'Sign In';
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function handleVerifyOtp(e) {
+            e.preventDefault();
+            const otpInput = document.getElementById('otp-input').value.trim();
+            const verifyBtn = document.getElementById('verify-btn');
+            const verifyText = document.getElementById('verify-btn-text');
+            const verifySpinner = document.getElementById('verify-spinner');
+
+            if (!otpInput) return;
+
+            verifyBtn.disabled = true;
+            verifyText.textContent = 'Verifying…';
+            verifySpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${DB_API}/api/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentLoginEmail, otp: otpInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    sessionStorage.setItem('agedash_token', data.token);
+                    sessionStorage.setItem('agedash_email', data.email);
+                    sessionStorage.setItem('agedash_role',  data.role);
+                    window.location.href = data.redirect;
+                } else {
+                    errorMessage.textContent = data.message || 'Invalid OTP.';
+                    errorAlert.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMessage.textContent = 'Network error during verification.';
+                errorAlert.classList.remove('hidden');
+            } finally {
+                verifyBtn.disabled = false;
+                verifyText.textContent = 'Verify OTP';
+                verifySpinner.classList.add('hidden');
+            }
+        }
+
+        // If already logged in, redirect immediately
+        (function checkExistingSession() {
+            const token = sessionStorage.getItem('agedash_token');
+            const role  = sessionStorage.getItem('agedash_role');
+            if (token && role) {
+                window.location.href = role === 'owner' ? '/owner-dashboard' : '/user-dashboard';
+            }
+        })();
+    </script>
+</body>
+
+</html>

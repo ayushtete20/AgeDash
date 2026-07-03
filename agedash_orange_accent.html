@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AgeDash </title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#FFFFFF",
+                        "tertiary-fixed-dim": "#64748B",
+                        "primary-fixed-dim": "#FF9B51",
+                        "on-surface": "#1E293B",
+                        "surface-dim": "#F4F5F7",
+                        "tertiary-fixed": "#475569",
+                        "on-tertiary-fixed": "#FFFFFF",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#475569",
+                        "surface-bright": "#FFFFFF",
+                        "inverse-surface": "#0F172A",
+                        "background": "#F4F5F7",
+                        "primary-fixed": "#FF9B51",
+                        "on-tertiary-container": "#1E293B",
+                        "primary-container": "#FF9B51",
+                        "on-secondary-fixed": "#FFFFFF",
+                        "on-surface-variant": "#64748B",
+                        "error": "#ffb4ab",
+                        "on-primary": "#FFFFFF",
+                        "surface-container-high": "#FFFFFF",
+                        "surface-container": "#FFFFFF",
+                        "surface-tint": "#FF9B51",
+                        "surface-container-lowest": "#FFFFFF",
+                        "on-background": "#1E293B",
+                        "on-primary-container": "#FFFFFF",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#64748B",
+                        "secondary-fixed-dim": "#475569",
+                        "secondary": "#475569",
+                        "surface": "#FFFFFF",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#475569",
+                        "on-primary-fixed-variant": "#FFFFFF",
+                        "on-secondary": "#FFFFFF",
+                        "surface-container-low": "#FFFFFF",
+                        "tertiary": "#475569",
+                        "outline-variant": "#E2E8F0",
+                        "inverse-primary": "#FF9B51",
+                        "on-tertiary": "#FFFFFF",
+                        "tertiary-container": "#E2E8F0",
+                        "outline": "#CBD5E1",
+                        "secondary-container": "#E2E8F0",
+                        "on-primary-fixed": "#FFFFFF",
+                        "surface-container-highest": "#FFFFFF",
+                        "primary": "#FF9B51",
+                        "on-secondary-container": "#1E293B",
+                        "surface-variant": "#F8FAFC"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "margin-mobile": "16px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "xl": "64px",
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .shader-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .edge-light-wrapper {
+            position: relative;
+            padding: 1.5px;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: rgba(226, 232, 240, 0.5);
+        }
+
+        .edge-light-gradient {
+            position: absolute;
+            top: -500%;
+            left: -500%;
+            width: 1100%;
+            height: 1100%;
+            background: conic-gradient(from 0deg, transparent 70%, #ff9b51 70%, #ff9b51 100%);
+            animation: spin 4s linear infinite;
+            pointer-events: none;
+        }
+
+        .edge-light-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        #start-hours-scroll,
+        #start-minutes-scroll,
+        #end-hours-scroll,
+        #end-minutes-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #start-hours-scroll::-webkit-scrollbar,
+        #start-minutes-scroll::-webkit-scrollbar,
+        #end-hours-scroll::-webkit-scrollbar,
+        #end-minutes-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes border-glow {
+            0% {
+                border-image-source: linear-gradient(0deg, #ff9b51, transparent, transparent, #ff9b51);
+            }
+
+            25% {
+                border-image-source: linear-gradient(90deg, #ff9b51, #ff9b51, transparent, transparent);
+            }
+
+            50% {
+                border-image-source: linear-gradient(180deg, transparent, #ff9b51, #ff9b51, transparent);
+            }
+
+            75% {
+                border-image-source: linear-gradient(270deg, transparent, transparent, #ff9b51, #ff9b51);
+            }
+
+            100% {
+                border-image-source: linear-gradient(360deg, #ff9b51, transparent, transparent, #ff9b51);
+            }
+        }
+
+        .page-border-glow {
+            position: fixed;
+            inset: 0;
+            border: 3.5px solid;
+            border-image: linear-gradient(0deg, #ff9b51, transparent, transparent, #ff9b51) 1;
+            pointer-events: none;
+            z-index: 99;
+            animation: border-glow 6s linear infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-surface-dim text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+    <!-- Viewport Edge Lighting Frame -->
+    <div class="page-border-glow"></div>
+
+    <!-- Active 3D Shader Background -->
+    <div id="particle-sphere-bg" class="shader-bg"></div>
+
+    <!-- Top Navigation Bar -->
+    <header
+        class="flex justify-between items-center px-margin-desktop py-base w-full sticky top-0 z-50 backdrop-blur-md bg-surface dark:bg-on-surface border-b border-outline-variant dark:border-on-surface-variant">
+        <div class="flex items-center gap-base">
+            <span
+                class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim tracking-tight">AgeDash</span>
+        </div>
+        <nav class="hidden md:flex gap-xl items-center">
+            <a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary font-body-md text-body-md transition-colors duration-200"
+                href="#">Solutions</a>
+            <a class="text-secondary dark:text-secondary-fixed-dim font-body-md text-body-md hover:text-primary transition-colors duration-200"
+                href="#">API Docs</a>
+            <a class="text-secondary dark:text-secondary-fixed-dim font-body-md text-body-md hover:text-primary transition-colors duration-200"
+                href="#">Showcase</a>
+            <a class="text-secondary dark:text-secondary-fixed-dim font-body-md text-body-md hover:text-primary transition-colors duration-200"
+                href="#">Company</a>
+        </nav>
+        <div class="flex items-center gap-md">
+            <!-- Changed from <button> to <a> and added href="login.html" -->
+            <a href="/login"
+                class="text-label-md font-label-md text-secondary hover:text-primary transition-colors cursor-pointer">Portal
+                Login</a>
+
+            <button onclick="window.location.href='/login'"
+                class="bg-primary text-on-primary px-md py-sm rounded-lg font-label-md hover:scale-95 transition-transform active:scale-90">Get
+                Started</button>
+        </div>
+    </header>
+    <main>
+        <!-- Hero Section -->
+        <section class="min-h-[85vh] flex items-center relative py-2xl overflow-hidden">
+            <div class="container grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+                
+                <!-- Left Column: Text Content -->
+                <div class="space-y-lg max-w-[620px] z-20">
+                    <span class="text-primary font-headline-sm font-semibold tracking-wider uppercase">Enterprise-Grade
+                        Intelligence</span>
+                    <h1 class="text-headline-xl font-headline-xl text-on-surface leading-tight">Scale Your Vision with
+                        <span class="text-primary">Humanized</span> AI.
+                    </h1>
+                    <p class="text-body-lg font-body-lg text-secondary">AgeDash delivers high-precision automation and
+                        custom API architectures designed for the modern enterprise. We bridge the gap between raw data
+                        and human decision-making.</p>
+                    <div class="flex flex-wrap gap-md pt-base">
+                        <button onclick="window.location.href='/login'"
+                            class="bg-primary text-on-primary px-xl py-md rounded-lg font-headline-md hover:shadow-lg transition-all flex items-center gap-xs">
+                            Start Building
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </button>
+                        <button
+                            class="outline outline-1 outline-secondary text-secondary px-xl py-md rounded-lg font-headline-md hover:bg-secondary/5 transition-all">
+                            View API Docs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Enlarged Image -->
+                <div class="relative hidden md:block h-[650px] w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
+                    <img class="w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-700"
+                        data-alt="A professional, high-technical studio photograph of a sleek, dark metallic AI server rack with pulsating orange fiber optic cables. The lighting is cinematic and moody, highlighting the brushed metal textures and precision engineering. Shallow depth of field with soft bokeh in the background, creating a high-energy corporate tech aesthetic with vibrant orange glows."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK14LeizOR2YLZ3M6k5RYiScHuGKoam_ZL-S--fWEYC1_j9no59j40Pds9y7quokPsy6s5r7PYDM_7vMTIvVDXqL2wxXiJ839JAUNjjCutVgU8Cematlgk0GhnUX9JgQwglg6o4DiGGxog7bKGXGnk4AVTENHt9uDHda1FhCJGjAwqiHSZIXP9Ql2ozyEgLBIq5f_cPQRQsOfh-q31lsZXiTDaD68u0i8kWdasN_vYf_TvWTXmrcqvsQx6-NRMLHzUJAL412p0BhaP" />
+                    <div class="absolute inset-0 bg-gradient-to-tr from-surface/40 to-transparent pointer-events-none"></div>
+                </div>
+
+            </div>
+        </section>
+        <section class="py-xl px-margin-desktop bg-surface-container-lowest/80 backdrop-blur-md">
+            <div class="text-center mb-xl">
+                <h2 class="text-headline-lg font-headline-lg text-on-surface mb-xs">Engineered for Impact</h2>
+                <p class="text-body-md font-body-md text-secondary max-w-2xl mx-auto">Our core capabilities empower
+                    technical teams to move faster with robust, scalable infrastructure.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+
+
+                <div class="edge-light-wrapper">
+                    <div class="edge-light-gradient"></div>
+                    <div class="edge-light-inner p-lg bg-surface h-full flex flex-col">
+                        <div
+                            class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors text-primary">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                        </div>
+                        <h3 class="text-headline-md font-headline-md mb-base">Custom AI Agents</h3>
+                        <p class="text-body-md font-body-md text-secondary">Autonomous agents trained on your
+                            proprietary data, capable of complex multi-step reasoning and execution.</p>
+                    </div>
+                </div>
+
+                <div class="edge-light-wrapper">
+                    <div class="edge-light-gradient"></div>
+                    <div class="edge-light-inner p-lg bg-surface h-full flex flex-col">
+                        <div
+                            class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors text-primary">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1;">api</span>
+                        </div>
+                        <h3 class="text-headline-md font-headline-md mb-base">Custom APIs</h3>
+                        <p class="text-body-md font-body-md text-secondary">Low-latency REST and GraphQL interfaces
+                            designed for high-concurrency environments and seamless integration.</p>
+                    </div>
+                </div>
+
+                <div class="edge-light-wrapper">
+                    <div class="edge-light-gradient"></div>
+                    <div class="edge-light-inner p-lg bg-surface h-full flex flex-col">
+                        <div
+                            class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors text-primary">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1;">account_tree</span>
+                        </div>
+                        <h3 class="text-headline-md font-headline-md mb-base">Workflow Automation</h3>
+                        <p class="text-body-md font-body-md text-secondary">End-to-end orchestration of repetitive
+                            tasks, reducing operational overhead by up to 60% across departments.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="p-lg bg-surface border border-outline-variant rounded-xl hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary group-hover:text-on-primary transition-colors"
+                            style="font-variation-settings: 'FILL' 1;">web</span>
+                    </div>
+                    <h3 class="text-headline-md font-headline-md mb-base">Website Building</h3>
+                    <p class="text-body-md font-body-md text-secondary">High-performance, responsive full-stack
+                        platforms engineered with modern frameworks like React and Node.js.</p>
+                </div>
+
+                <div
+                    class="p-lg bg-surface border border-outline-variant rounded-xl hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary group-hover:text-on-primary transition-colors"
+                            style="font-variation-settings: 'FILL' 1;">schema</span>
+                    </div>
+                    <h3 class="text-headline-md font-headline-md mb-base">n8n Backend &amp; AI Agents</h3>
+                    <p class="text-body-md font-body-md text-secondary">Advanced visual workflow automation
+                        connecting your core applications, layered with intelligent AI orchestration.</p>
+                </div>
+
+                <div
+                    class="p-lg bg-surface border border-outline-variant rounded-xl hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center mb-md group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary group-hover:text-on-primary transition-colors"
+                            style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    </div>
+                    <h3 class="text-headline-md font-headline-md mb-base">Custom Dashboards</h3>
+                    <p class="text-body-md font-body-md text-secondary">Tailored administrative and user
+                        interfaces to seamlessly manage webhooks, data pipelines, and system controls.</p>
+                </div>
+
+            </div>
+        </section>
+        <!-- Projects Showcase: Asymmetric Bento Grid -->
+        <section class="py-xl px-margin-desktop">
+            <div class="flex justify-between items-end mb-xl">
+                <div>
+                    <h2 class="text-headline-lg font-headline-lg">Innovation in Practice</h2>
+                    <p class="text-body-md font-body-md text-secondary">Featured deployments across Fintech and
+                        Health-tech.</p>
+                </div>
+                <button
+                    class="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-label-md hover:bg-on-surface transition-colors">View
+                    More Work</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-gutter h-auto md:h-[600px]">
+                <div class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        data-alt="A futuristic dashboard UI displayed on a high-end glass monitor. The screen shows complex data visualizations including real-time node graphs, glowing orange trend lines, and minimalist grey typography. The environment is a clean, dark-mode technical laboratory with ambient blue and orange rim lighting. Corporate precision and high-technology aesthetic."
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAw8uASfP0kUUYt4dcJcrIpWy9zLAN_I4G4zQbh44KanHrWmg9Gk99a8GQcOhppE0eBvb-9BFvBrQ7ppmTEqRTuHv_7BRwcbJAySS9QfyGPlNaSwf_2dpEkpzLeWIONNYkl_OeiC61iY6SisHe04A5Uw6Njn-UzZmRaw4p5nr20q2jHQJBzbqOO_qP5r7Sho1onEkDnugyiCk5dK9NbJOEFwRDX-7RhZsCddaBwTqR0twGCvUypBBWUv-wnMTGNNsbbWxsa6pFw7eUs')">
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-lg">
+                        <span class="text-primary-fixed text-label-md uppercase tracking-widest">Fintech</span>
+                        <h4 class="text-headline-md text-white">Quantum Ledger API</h4>
+                    </div>
+                </div>
+                <div class="md:col-span-2 relative group overflow-hidden rounded-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        data-alt="A clean, minimalist workspace showing a laptop and a high-resolution secondary display. The screens show code editors with vibrant syntax highlighting in shades of orange and teal. The desk is made of white polished marble. Soft daylight fills the room, creating a premium professional feel. Minimalist tech atmosphere."
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB1hfdRFrLcnsJTE4MH9Ih8e2mjQ7lSnxUB3gC7JVnFyKl4fAKZsST8Q8ang_KbaoSWMlL8KEPHmNaf3-vEUhsa4hJzIMwLe-ikOs3PUo8GpQlvZeYEeGLWtJC8S4U94mMLOlRTxaXkdmG6pGZZB9WE-Qs_TC6a6Wn_XDePRRPagK-YKQ_RrxDSQVvbSHrKceCY3MXILIKidqUhKPq4wNjc0X470XclyjiR0_BugYtXMZjZGE-VjPvg8h00bf_w_uG9-HoW4uqvWLZy')">
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-lg">
+                        <span class="text-primary-fixed text-label-md uppercase tracking-widest">Health-Tech</span>
+                        <h4 class="text-headline-md text-white">BioSync Automations</h4>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        data-alt="Macro detail of an advanced microchip processor glowing with orange neural pathways. The focus is sharp on the intricate circuitry, suggesting deep computational power. The background is a dark, tech-infused bokeh of server status lights. Industrial design and innovation."
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1bwPIVO_k2DkCwva0p7QEYH6mUSFwP-iFtwXNUzlqmQa2SPIb1e9s7LFvVIq_yAcow86lC_aKCs270gcxINfRthMpw9lWHnH-IN7yzdJk7G7FYZy5X_BgEU4ezpOMsGbPT-UcinhYforBVMxvXuzNULU0Qm4qfzwK1ayp_nG31DDKnhfX0luRnP7rKFNSRHHtgCIAtt9JO71sXGEYIDmVjDQgFj1FxbtY_OTW-ESvwo4UHGlfFocOcCt5dzxuV7QTwwqYevKYmYSh')">
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-lg">
+                        <h4 class="text-headline-md text-white">Neuro-Core</h4>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        data-alt="Abstract digital representation of global connectivity. Soft glowing nodes connected by thin white and orange lines forming a sphere. High-key light-mode aesthetic against a very light grey background. Minimalist and corporate."
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBaJZDqp5KucEzZXOVYlDA17eHy8vMvoNh7ieCtNDOuSjWsmOq-ePaP9pIM_D-V4lxx2WhGJP6I7mmwchN0dXtRBUywotBgN7Lzc6AOjghSP0K7ggVRtXliGX_GlyRgYsSvB1p4uEhblgVDFb90t9Sx66hi_WdIGO4d11qUM9qyAZWAXueoSMuPGkHTOdpB_Jm8fVQKEZ2WZpnMl_ySCuzphrKXpPI2RMF7yKTNxhfxA9Qr6VDQnmTPvNRZKjS_Gi5s_qtrZCfOiyrz')">
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-lg">
+                        <h4 class="text-headline-md text-white">Global Mesh</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Dashboard Preview Section -->
+        <section class="py-xl bg-surface-container-high/60 backdrop-blur-md">
+            <div class="px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
+                <div class="space-y-md">
+                    <h2 class="text-headline-lg font-headline-lg">Total Visibility, Two Perspectives.</h2>
+                    <p class="text-body-lg font-body-lg text-secondary">AgeDash provides tailored interfaces
+                        for both administrative control and end-user engagement, ensuring everyone has the data
+                        they need.</p>
+                    <div class="space-y-base">
+                        <div class="flex items-start gap-md p-md bg-surface rounded-lg border border-outline-variant">
+                            <span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+                            <div>
+                                <h4 class="font-headline-md text-on-surface">Owner View</h4>
+                                <p class="text-body-md text-secondary">Manage system-wide permissions, monitor
+                                    API latency, and oversee compute budgets in real-time.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-md p-md bg-surface rounded-lg border border-outline-variant">
+                            <span class="material-symbols-outlined text-primary">person</span>
+                            <div>
+                                <h4 class="font-headline-md text-on-surface">User View</h4>
+                                <p class="text-body-md text-secondary">Streamlined dashboard for interacting
+                                    with AI agents and tracking individual task completion.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div
+                        class="translate-x-4 translate-y-4 rounded-xl border border-outline-variant shadow-2xl overflow-hidden bg-white">
+                        <img class="w-full h-auto"
+                            data-alt="A clean, professional administrative dashboard interface for a tech platform. It features a sidebar navigation, several key metric cards showing 99.9% uptime and active user counts, and a central line chart with vibrant orange and grey lines. The design is airy and minimalist with generous white space and high-contrast labels."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTC8pzPpHRGCxEO7p6igcmOjvMLlWCYpjLxQs1bx0EflAE0OKxifbLWODISKJhIiIC4LGxWJTt3kNCI707WGY-fVHjNE3tJ8NnogGojwCuNEB0aPNHgxhERo5OSWb5l6s87ryTiK3qqfrf3CTlNI9KA5jS_LZRZgjIbbMoGcIqg6ZP6OJopyAZmPXpLhwWvlYl56glXHSXqHRItGKvYnXAC26CG0rnoF8bWL-xe5KuTynxAsE8ayMxyHDyd6GJiihEaHXTKr7R7hTO" />
+                    </div>
+                    <div
+                        class="absolute top-1/4 -left-12 w-3/4 rounded-xl border border-outline-variant shadow-2xl overflow-hidden bg-white hidden lg:block">
+                        <img class="w-full h-auto"
+                            data-alt="A user-centric mobile dashboard mockup featuring a focused list of tasks, a status progress circular indicator in bright orange, and a chat interface with an AI assistant. The design is sleek, modern, and high-fidelity, emphasizing ease of use and professional aesthetics."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB__ZdS5J9k5MvatbNNte2kNX0J9AhwdKugWwuUHcXcSBdMX5Yw6CV5a8j7Rw3yOzvI4BYMAB65k3Ll9QbcTzbhk0rtrPPdsApjmyKJU8NiCVqDO1ZfXrIHQlAwVa_VxGYghEn_DK95VfRALKouLiao7bu2q50y84JPHKDnWqmAwKstNy8ZyuXMYSnGQ9cwpGcdvNa6aCitZoXRhMXFRPf6X5EhBp_zNQA6vPSRuGHYJuKDIh656cGNJpCk9mIV0itRTKU0eKY444TX" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Booking Section -->
+        <section class="py-xl px-margin-desktop relative">
+            <div class="edge-light-wrapper max-w-4xl mx-auto shadow-2xl">
+                <div class="edge-light-gradient"></div>
+                <div class="edge-light-inner p-xl relative overflow-hidden">
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+                    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-xl">
+                        <div>
+                            <h2 class="text-headline-lg font-headline-lg mb-md">Schedule a Technical Deep Dive</h2>
+                            <p class="text-body-md text-secondary mb-xl">Consult with our lead engineers to map out
+                                your infrastructure requirements and ROI targets.</p>
+                            <div class="space-y-md">
+                                <div class="flex items-center gap-md text-on-surface">
+                                    <span class="material-symbols-outlined text-primary">timer</span>
+                                    <span>30-minute Architecture Review</span>
+                                </div>
+                                <div class="flex items-center gap-md text-on-surface">
+                                    <span class="material-symbols-outlined text-primary">videocam</span>
+                                    <span>Direct with Solutions Engineer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <form id="booking-form"
+                            class="bg-slate-50 backdrop-blur-md rounded-xl p-md border border-slate-200 shadow-inner space-y-md">
+                            <div>
+                                <label class="block text-label-md text-on-surface mb-xs font-semibold">Name</label>
+                                <input type="text" id="booking-name" required
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 focus:border-primary focus:ring-1 focus:ring-primary py-sm px-md outline-none transition-all"
+                                    placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label class="block text-label-md text-on-surface mb-xs font-semibold">Work
+                                    Email</label>
+                                <input type="email" id="booking-email" required
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 focus:border-primary focus:ring-1 focus:ring-primary py-sm px-md outline-none transition-all"
+                                    placeholder="you@company.com">
+                            </div>
+                            <!-- Custom Visual Calendar Selector -->
+                            <div>
+                                <label class="block text-label-md text-on-surface mb-xs font-semibold">Select
+                                    Date</label>
+                                <input type="hidden" id="booking-date" required>
+                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm select-none">
+                                    <div class="flex items-center justify-between mb-3 px-1">
+                                        <span id="cal-month-year" class="text-sm font-bold text-on-surface"></span>
+                                        <div class="flex gap-2">
+                                            <button type="button" id="btn-prev-month"
+                                                class="p-1 rounded hover:bg-slate-100 text-primary transition-all">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </button>
+                                            <button type="button" id="btn-next-month"
+                                                class="p-1 rounded hover:bg-slate-100 text-primary transition-all">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-secondary mb-2">
+                                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                                    </div>
+                                    <div id="cal-days-grid" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
+                                </div>
+                            </div>
+
+                            <!-- Time Slot Selection Grid -->
+                            <div>
+                                <label class="block text-label-md text-on-surface mb-xs font-semibold">Select Time Slot
+                                    (30-Min Session)</label>
+                                <input type="hidden" id="booking-start" required>
+                                <input type="hidden" id="booking-end" required>
+                                <div id="time-slots-grid" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
+                                    <div class="col-span-3 text-center text-xs text-zinc-500 py-4">Please select a date
+                                        first</div>
+                                </div>
+                            </div>
+                            <div id="booking-message" class="text-label-md hidden"></div>
+                            <button type="submit"
+                                class="w-full bg-primary text-on-primary mt-md py-sm rounded-lg font-label-md hover:opacity-90 shadow-sm transition-all font-semibold">
+                                Confirm Selection
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Testimonials Section -->
+        <section class="py-xl px-margin-desktop bg-surface-container-lowest/40 backdrop-blur-md">
+            <h2 class="text-headline-lg font-headline-lg text-center mb-xl">Trusted by Industry Leaders</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                <!-- Testimonial 1 -->
+                <div class="p-lg bg-surface border border-outline-variant rounded-xl shadow-sm">
+                    <div class="flex gap-xs text-primary mb-md">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                    <p class="text-body-md italic text-on-surface mb-lg">"AgeDash transformed our data
+                        pipeline. The custom agents they built handle 40% of our tier-1 support tickets
+                        autonomously."</p>
+                    <div class="flex items-center gap-md">
+                        <div
+                            class="w-12 h-12 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+                            <img class="w-full h-full object-cover"
+                                data-alt="A professional headshot of a female tech executive with a confident smile. She has dark hair and is wearing a sleek grey blazer. The background is a blurred high-end office environment. High-key lighting, clean professional aesthetic."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQysYV9Qaz1BBpLVbRV1dixqLmU3OsFJLEB9HbX4Pq8wb4YR4I1TNo5HIqBeMn4eWdPcSgtJaZn2dFyGZC5lYe7lCZh_XWonpZx5u5UOl_11UgzdF5bdm6KCWlqpwdPej38X9Cdig9OArAQvB8mbiuOeA81mSex-5nz7NPi9L0URnx9LlmM1un3oRi6-al8hiNi1oXWsTsV52DkZ0vhfNdPnWsxmOSnRJvCumWgYdWmPyjMpP5CaNDt7z-MM9MqgG4UHKLtaBuz7Gc" />
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-on-surface">Sarah Chen</h5>
+                            <span class="text-label-md text-secondary">CTO, NexaFlow</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="p-lg bg-surface border border-outline-variant rounded-xl shadow-sm">
+                    <div class="flex gap-xs text-primary mb-md">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                    <p class="text-body-md italic text-on-surface mb-lg">"The precision of their API
+                        architecture is unmatched. We saw a 200ms reduction in latency within the first week of
+                        deployment."</p>
+                    <div class="flex items-center gap-md">
+                        <div
+                            class="w-12 h-12 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+                            <img class="w-full h-full object-cover"
+                                data-alt="A professional headshot of a middle-aged male software architect. He is wearing glasses and a minimalist black sweater. The lighting is soft and focused, creating a serious yet approachable technical vibe."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUuRekwGnvfiPkQt1LaASeKWBd06-rErwbZ3jW1j1zmjCaBk9jyjo-uTGKi1CQt6PQBvci5Dim1vgmpVtJGCX11gPi3iDjLMXgfHOKD0WVMOvqCBS-IhIMIYnqsnM-ccb5n9FuUNYy6tCIi7fWNllEdyOiOLHDTiU7EgBZTyNwFSmq2LWCSMSGxffqQOH-8X1NjG-Ob3uktFlq-fu2u70mi7nuJzvb8ZbCbiWtNeO-mzBEWNKxieDWU4PxGpQuuGa3VlokePsIchiP" />
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-on-surface">Markus Vogt</h5>
+                            <span class="text-label-md text-secondary">Lead Architect, Global Ledger</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="p-lg bg-surface border border-outline-variant rounded-xl shadow-sm">
+                    <div class="flex gap-xs text-primary mb-md">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                    <p class="text-body-md italic text-on-surface mb-lg">"Professionalism meets extreme
+                        technical capability. AgeDash is our go-to partner for all complex automation
+                        workflows."</p>
+                    <div class="flex items-center gap-md">
+                        <div
+                            class="w-12 h-12 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+                            <img class="w-full h-full object-cover"
+                                data-alt="A professional headshot of a young male startup founder. He has a creative and energetic expression, wearing a stylish denim shirt. The background is a vibrant, modern tech hub. High-energy lighting and professional style."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFZlyTI4jmHw2eMW5PH64_g_VKSsQTwKmjgfTkJGytYb2gUBbwBs_np_-OQDtEm48Zgn04KPqawkeLuNzz7UsDLv8WhYoSf_Wdm-aCQyblRyX2TU4fXHGdH_ET3ZjfU4V20xMfC6y8ws-EwJtDyYg14-CU_2QsHsG2li387TjKWsVw-CTMobEMnS1ypgVov0SEdjv9c6AAfoyKSAJ_E3iV8lhfOkow9gww9z_3RnsKZaUo_qQv6I403gIQYedKzcuVsaCfCIeiYIeG" />
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-on-surface">Julian Rivera</h5>
+                            <span class="text-label-md text-secondary">Founder, BloomHealth</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="bg-surface-container-lowest dark:bg-on-surface border-t border-outline-variant dark:border-on-surface-variant px-margin-desktop py-xl w-full grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <div class="space-y-md">
+            <span class="text-headline-sm font-headline-sm text-on-surface dark:text-surface-bright">AgeDash</span>
+            <p class="text-secondary dark:text-secondary-fixed-dim max-w-sm">Defining the next generation of industrial
+                intelligence and seamless API orchestration.</p>
+            <div class="flex gap-md">
+                <a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                    href="#">Twitter</a>
+                <a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                    href="#">LinkedIn</a>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-lg">
+            <div class="space-y-sm">
+                <h6 class="font-bold text-on-surface dark:text-surface-bright uppercase tracking-tighter text-label-md">
+                    Product</h6>
+                <nav class="flex flex-col gap-xs">
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">API Reference</a>
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">Status</a>
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">Changelog</a>
+                </nav>
+            </div>
+            <div class="space-y-sm">
+                <h6 class="font-bold text-on-surface dark:text-surface-bright uppercase tracking-tighter text-label-md">
+                    Company</h6>
+                <nav class="flex flex-col gap-xs">
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">Privacy</a>
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">Terms</a>
+                    <a class="text-tertiary dark:text-tertiary-fixed-dim font-label-md hover:text-on-surface transition-opacity opacity-80 hover:opacity-100"
+                        href="#">Security</a>
+                </nav>
+            </div>
+        </div>
+        <div
+            class="md:col-span-2 pt-xl border-t border-outline-variant/30 text-label-md text-tertiary flex justify-between">
+            <span>© 2024 AgeDash AI Systems. All rights reserved.</span>
+            <span>v2.4.0 High-Precision Build</span>
+        </div>
+    </footer>
+    <script>
+        // Micro-interactions for hover effects
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('scale-95');
+            });
+            el.addEventListener('mouseup', () => {
+                el.classList.remove('scale-95');
+            });
+            el.addEventListener('mouseleave', () => {
+                el.classList.remove('scale-95');
+            });
+        });
+
+        // Custom Date and Time Picker Initialization (Time Slots Grid with conflict checking)
+        (function initCustomBookingPickers() {
+            // Calendar State
+            let currentDate = new Date();
+            let selectedDateStr = "";
+
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            const monthYearEl = document.getElementById("cal-month-year");
+            const daysGridEl = document.getElementById("cal-days-grid");
+            const dateInput = document.getElementById("booking-date");
+
+            // Cached bookings list for conflict checks
+            let bookedSlots = [];
+
+            function fetchBookings() {
+                fetch('/api/bookings')
+                    .then(res => res.json())
+                    .then(data => {
+                        bookedSlots = data;
+                        renderTimeSlots();
+                    })
+                    .catch(err => console.error('Failed to load bookings:', err));
+            }
+
+            // Load bookings initially
+            fetchBookings();
+
+            function renderCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+
+                monthYearEl.textContent = `${months[month]} ${year}`;
+                daysGridEl.innerHTML = "";
+
+                // Get first day of the month and total days
+                const firstDayIndex = new Date(year, month, 1).getDay();
+                const totalDays = new Date(year, month + 1, 0).getDate();
+
+                // Get last day of previous month
+                const prevTotalDays = new Date(year, month, 0).getDate();
+
+                // Empty cells for previous month padding
+                for (let i = firstDayIndex; i > 0; i--) {
+                    const dayDiv = document.createElement("div");
+                    dayDiv.className = "text-zinc-700 py-1.5 cursor-default";
+                    dayDiv.textContent = prevTotalDays - i + 1;
+                    daysGridEl.appendChild(dayDiv);
+                }
+
+                // Days of current month
+                const today = new Date();
+                for (let day = 1; day <= totalDays; day++) {
+                    const dayDiv = document.createElement("div");
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                    const isSelected = selectedDateStr === dateStr;
+
+                    dayDiv.className = `py-1.5 rounded-lg cursor-pointer transition-all font-medium ${isSelected
+                        ? "bg-primary text-on-primary font-bold shadow-sm"
+                        : isToday
+                            ? "bg-primary-container/20 text-primary border border-primary/30"
+                            : "hover:bg-primary-container/10 text-on-surface"
+                        }`;
+                    dayDiv.textContent = day;
+
+                    dayDiv.addEventListener("click", () => {
+                        selectedDateStr = dateStr;
+                        dateInput.value = dateStr;
+                        selectedSlot = null; // reset selected slot
+                        document.getElementById("booking-start").value = "";
+                        document.getElementById("booking-end").value = "";
+                        renderCalendar();
+                        renderTimeSlots();
+                    });
+
+                    daysGridEl.appendChild(dayDiv);
+                }
+            }
+
+            document.getElementById("btn-prev-month").addEventListener("click", () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            document.getElementById("btn-next-month").addEventListener("click", () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            renderCalendar();
+
+            // 30-Minute Time Slots List (11:00 to 23:00)
+            const slots = [
+                { start: "11:00", end: "11:30", label: "11:00 AM" },
+                { start: "11:30", end: "12:00", label: "11:30 AM" },
+                { start: "12:00", end: "12:30", label: "12:00 PM" },
+                { start: "12:30", end: "13:00", label: "12:30 PM" },
+                { start: "13:00", end: "13:30", label: "01:00 PM" },
+                { start: "13:30", end: "14:00", label: "01:30 PM" },
+                { start: "14:00", end: "14:30", label: "02:00 PM" },
+                { start: "14:30", end: "15:00", label: "02:30 PM" },
+                { start: "15:00", end: "15:30", label: "03:00 PM" },
+                { start: "15:30", end: "16:00", label: "03:30 PM" },
+                { start: "16:00", end: "16:30", label: "04:00 PM" },
+                { start: "16:30", end: "17:00", label: "04:30 PM" },
+                { start: "17:00", end: "17:30", label: "05:00 PM" },
+                { start: "17:30", end: "18:00", label: "05:30 PM" },
+                { start: "18:00", end: "18:30", label: "06:00 PM" },
+                { start: "18:30", end: "19:00", label: "06:30 PM" },
+                { start: "19:00", end: "19:30", label: "07:00 PM" },
+                { start: "19:30", end: "20:00", label: "07:30 PM" },
+                { start: "20:00", end: "20:30", label: "08:00 PM" },
+                { start: "20:30", end: "21:00", label: "08:30 PM" },
+                { start: "21:00", end: "21:30", label: "09:00 PM" },
+                { start: "21:30", end: "22:00", label: "09:30 PM" },
+                { start: "22:00", end: "22:30", label: "10:00 PM" },
+                { start: "22:30", end: "23:00", label: "10:30 PM" },
+            ];
+
+            const slotsGridEl = document.getElementById("time-slots-grid");
+            let selectedSlot = null;
+
+            function renderTimeSlots() {
+                slotsGridEl.innerHTML = "";
+
+                if (!selectedDateStr) {
+                    const tip = document.createElement("div");
+                    tip.className = "col-span-3 text-center text-xs text-zinc-500 py-4";
+                    tip.textContent = "Please select a date first";
+                    slotsGridEl.appendChild(tip);
+                    return;
+                }
+
+                // Filter bookings for the selected date
+                const bookingsForDate = bookedSlots.filter(b => b.date === selectedDateStr);
+
+                slots.forEach(slot => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+
+                    // Check conflict: (Slot Start < Booking End) && (Slot End > Booking Start)
+                    const isBooked = bookingsForDate.some(b => {
+                        return (slot.start < b.end_time && slot.end > b.start_time);
+                    });
+
+                    const isChosen = selectedSlot && selectedSlot.start === slot.start;
+
+                    btn.className = `py-2 rounded-lg text-xs font-semibold border transition-all ${isBooked
+                        ? "bg-zinc-950/40 border-zinc-900 text-zinc-600 line-through opacity-40 cursor-not-allowed"
+                        : isChosen
+                            ? "bg-primary border-primary text-on-primary font-bold shadow-sm"
+                            : "bg-surface border-outline-variant hover:border-primary/50 text-zinc-300"
+                        }`;
+                    btn.textContent = slot.label;
+
+                    if (!isBooked) {
+                        btn.addEventListener("click", () => {
+                            selectedSlot = slot;
+                            document.getElementById("booking-start").value = slot.start;
+                            document.getElementById("booking-end").value = slot.end;
+                            renderTimeSlots();
+                        });
+                    } else {
+                        btn.disabled = true;
+                    }
+
+                    slotsGridEl.appendChild(btn);
+                });
+            }
+
+            // Expose reload function to submit handler
+            window.reloadBookingsCache = fetchBookings;
+
+            // Intercept reset on form to clear selected widgets
+            document.getElementById('booking-form').addEventListener('reset', () => {
+                selectedDateStr = "";
+                dateInput.value = "";
+                selectedSlot = null;
+                document.getElementById("booking-start").value = "";
+                document.getElementById("booking-end").value = "";
+                setTimeout(() => {
+                    renderCalendar();
+                    renderTimeSlots();
+                }, 50);
+            });
+        })();
+
+        // Booking form client logic
+        document.getElementById('booking-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('booking-name').value;
+            const email = document.getElementById('booking-email').value;
+            const date = document.getElementById('booking-date').value;
+            const start_time = document.getElementById('booking-start').value;
+            const end_time = document.getElementById('booking-end').value;
+
+            const msgDiv = document.getElementById('booking-message');
+            msgDiv.classList.add('hidden');
+
+            if (start_time >= end_time) {
+                alert('Start time must be before end time.');
+                return;
+            }
+
+            fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, date, start_time, end_time })
+            })
+                .then(async response => {
+                    if (response.status === 409) {
+                        const data = await response.json();
+                        alert(`Scheduling conflict: ${data.message || 'The selected timeslot overlaps with an existing booking.'}`);
+                        msgDiv.textContent = `Conflict: ${data.message}`;
+                        msgDiv.className = "text-label-md text-red-500 block mt-sm font-semibold";
+                        msgDiv.classList.remove('hidden');
+                    } else if (response.ok) {
+                        alert('Booking confirmed successfully!');
+                        msgDiv.textContent = "Booking confirmed!";
+                        msgDiv.className = "text-label-md text-primary block mt-sm font-semibold";
+                        msgDiv.classList.remove('hidden');
+                        document.getElementById('booking-form').reset();
+                        if (window.reloadBookingsCache) window.reloadBookingsCache();
+                    } else {
+                        const data = await response.json();
+                        alert(`Error: ${data.message || 'Something went wrong.'}`);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Network error. Please try again.');
+                });
+        });
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.174.0/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+        // 3. Added the import statement here
+        import * as THREE from 'three';
+
+        // Three.js 3D Particle Sphere — Framer-Reference Implementation
+        // Features: Fibonacci distribution, InstancedMesh (round particles), cursor repulsion,
+        //           click scatter, drag rotation with momentum, stop-on-hover, scroll parallax.
+        (function initParticleSphere() {
+            const container = document.getElementById('particle-sphere-bg');
+            if (!container) return;
+
+            // ... (keep all your existing particle sphere code below this exactly as it is) ...
+
+            // ── CONFIG ──────────────────────────────────────────────────────
+            const PARTICLE_COUNT = 3000;
+            const SPHERE_RADIUS = 1.5;
+            const PARTICLE_RADIUS = 0.012;
+            const AUTO_SPEED = 0.025;          // radians/frame at 60 fps
+            const LERP_FACTOR = 0.04;
+            const VELOCITY_DECAY = 0.96;
+            const DRAG_SENS = 0.008;
+            const CURSOR_RADIUS = 120;            // px
+            const CURSOR_STRENGTH = 8;
+            const CLICK_FORCE = 6;
+            const RETURN_FORCE = 0.015;
+            const FRICTION = 0.94;
+            const PARTICLE_COLOR = 0x000000;       // black for light bg
+            const PARTICLE_OPACITY = 0.55;
+
+            // ── SCENE / CAMERA / RENDERER ───────────────────────────────────
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 3.5;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            container.appendChild(renderer.domElement);
+
+            // ── FIBONACCI SPHERE DISTRIBUTION ───────────────────────────────
+            const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+            const basePositions = [];
+            const displacements = [];
+            const scatterVelocities = [];
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
+                const radius = Math.sqrt(1 - y * y);
+                const theta = goldenAngle * i;
+                const x = Math.cos(theta) * radius;
+                const z = Math.sin(theta) * radius;
+
+                basePositions.push(new THREE.Vector3(
+                    x * SPHERE_RADIUS,
+                    y * SPHERE_RADIUS,
+                    z * SPHERE_RADIUS
+                ));
+                displacements.push(new THREE.Vector3(0, 0, 0));
+                scatterVelocities.push(new THREE.Vector3(0, 0, 0));
+            }
+
+            // ── INSTANCED MESH (round particles) ────────────────────────────
+            const sphereGeo = new THREE.SphereGeometry(PARTICLE_RADIUS, 6, 6);
+            const sphereMat = new THREE.MeshBasicMaterial({
+                color: PARTICLE_COLOR,
+                transparent: true,
+                opacity: PARTICLE_OPACITY
+            });
+
+            const mesh = new THREE.InstancedMesh(sphereGeo, sphereMat, PARTICLE_COUNT);
+            const dummy = new THREE.Matrix4();
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const p = basePositions[i];
+                dummy.setPosition(p.x, p.y, p.z);
+                mesh.setMatrixAt(i, dummy);
+            }
+            mesh.instanceMatrix.needsUpdate = true;
+
+            const group = new THREE.Group();
+            group.add(mesh);
+            scene.add(group);
+
+            // ── ROTATION STATE ──────────────────────────────────────────────
+            const rotation = { x: 0, y: 0 };
+            const targetRotation = { x: 0, y: 0 };
+            const velocity = { x: 0, y: 0 };
+            let isDragging = false;
+            let isHovering = false;
+            let lastMouseX = 0, lastMouseY = 0;
+            let lastDragTime = 0;
+
+            // Cursor tracking (screen-space)
+            let mouseScreen = null;      // { x, y } in page pixels
+
+            // ── DELTA TIME ──────────────────────────────────────────────────
+            let lastFrame = performance.now();
+            const TARGET_DT = 1000 / 60;
+
+            // ── ANIMATION LOOP ──────────────────────────────────────────────
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const now = performance.now();
+                const dt = now - lastFrame;
+                lastFrame = now;
+                const df = dt / TARGET_DT;          // delta-factor for 60 fps normalisation
+                const threshold = 0.01;
+
+                // Auto-rotation (paused while hovering or dragging)
+                if (!isDragging && !isHovering) {
+                    targetRotation.x += AUTO_SPEED * 0.1 * df;
+                }
+
+                // Scroll-linked rotation added on top
+                const scrollOffset = window.scrollY * 0.0004;
+
+                // Throw velocity decay
+                if (!isDragging) {
+                    if (Math.abs(velocity.x) > threshold || Math.abs(velocity.y) > threshold) {
+                        targetRotation.x += velocity.x * df;
+                        targetRotation.y += velocity.y * df;
+                        targetRotation.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotation.y));
+                        const decay = Math.pow(VELOCITY_DECAY, df);
+                        velocity.x *= decay;
+                        velocity.y *= decay;
+                    } else {
+                        velocity.x = 0;
+                        velocity.y = 0;
+                    }
+                }
+
+                // Lerp current → target
+                const lf = 1 - Math.pow(1 - LERP_FACTOR, df);
+                rotation.x += (targetRotation.x - rotation.x) * lf;
+                rotation.y += (targetRotation.y - rotation.y) * lf;
+                rotation.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.y));
+
+                group.rotation.y = rotation.x + scrollOffset;
+                group.rotation.x = rotation.y;
+                group.updateMatrixWorld(true);
+
+                // ── CURSOR REPULSION ────────────────────────────────────────
+                const cursorRadSq = CURSOR_RADIUS * CURSOR_RADIUS;
+                const canvasW = window.innerWidth;
+                const canvasH = window.innerHeight;
+                const containerRect = container.getBoundingClientRect();
+
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const base = basePositions[i];
+                    const disp = displacements[i];
+
+                    if (mouseScreen) {
+                        // Current local pos = base + displacement
+                        const localPos = new THREE.Vector3().copy(base).add(disp);
+                        // → world
+                        const worldPos = localPos.clone().applyMatrix4(group.matrixWorld);
+                        // → screen
+                        const proj = worldPos.clone().project(camera);
+                        const sx = (proj.x * 0.5 + 0.5) * canvasW;
+                        const sy = (-proj.y * 0.5 + 0.5) * canvasH;
+
+                        const dx = mouseScreen.x - sx;
+                        const dy = mouseScreen.y - sy;
+                        const d2 = dx * dx + dy * dy;
+
+                        if (d2 < cursorRadSq && d2 > 0) {
+                            const dist = Math.sqrt(d2);
+                            const force = (CURSOR_RADIUS - dist) / CURSOR_RADIUS;
+                            const angle = Math.atan2(dy, dx);
+
+                            // Camera right / up vectors
+                            const camRight = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0).normalize();
+                            const camUp = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+
+                            const repulsion = force * CURSOR_STRENGTH * 0.5 * df * 0.01;
+                            const worldRep = new THREE.Vector3()
+                                .addScaledVector(camRight, -Math.cos(angle) * repulsion)
+                                .addScaledVector(camUp, Math.sin(angle) * repulsion);
+
+                            // World → local
+                            const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+                            const localRep = worldRep.clone().applyMatrix4(inv);
+                            disp.add(localRep);
+                        }
+                    }
+
+                    // Scatter velocity
+                    const sv = scatterVelocities[i];
+                    disp.addScaledVector(sv, df * 0.1);
+                    sv.multiplyScalar(Math.pow(0.95, df));
+                    sv.multiplyScalar(1 - RETURN_FORCE * 0.5 * df);
+
+                    // Friction + spring return
+                    disp.multiplyScalar(Math.pow(FRICTION, df));
+                    disp.multiplyScalar(1 - RETURN_FORCE * df);
+                }
+
+                // Update instance matrices
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const p = basePositions[i];
+                    const d = displacements[i];
+                    dummy.setPosition(p.x + d.x, p.y + d.y, p.z + d.z);
+                    mesh.setMatrixAt(i, dummy);
+                }
+                mesh.instanceMatrix.needsUpdate = true;
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // ── DRAG ROTATION ───────────────────────────────────────────────
+            const canvas = renderer.domElement;
+            // Allow pointer events on the canvas (override shader-bg pointer-events:none)
+            canvas.style.pointerEvents = 'auto';
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                velocity.x = 0;
+                velocity.y = 0;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                lastDragTime = performance.now();
+
+                function onMove(ev) {
+                    const now = performance.now();
+                    const elapsed = now - lastDragTime;
+                    const dx = ev.clientX - lastMouseX;
+                    const dy = ev.clientY - lastMouseY;
+                    targetRotation.x += dx * DRAG_SENS;
+                    targetRotation.y += dy * DRAG_SENS;
+                    targetRotation.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotation.y));
+                    if (elapsed > 0) {
+                        const norm = TARGET_DT / elapsed;
+                        velocity.x = dx * DRAG_SENS * 0.3 * norm;
+                        velocity.y = dy * DRAG_SENS * 0.3 * norm;
+                    }
+                    lastMouseX = ev.clientX;
+                    lastMouseY = ev.clientY;
+                    lastDragTime = now;
+                }
+                function onUp() {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    isDragging = false;
+                }
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+
+            // ── HOVER → STOP AUTO-ROTATION ──────────────────────────────────
+            canvas.addEventListener('mousemove', (e) => {
+                isHovering = true;
+                mouseScreen = { x: e.clientX, y: e.clientY };
+            });
+            canvas.addEventListener('mouseleave', () => {
+                isHovering = false;
+                mouseScreen = null;
+            });
+
+            // ── CLICK SCATTER ───────────────────────────────────────────────
+            canvas.addEventListener('click', (e) => {
+                group.updateMatrixWorld(true);
+                const clickX = e.clientX;
+                const clickY = e.clientY;
+
+                // Unproject click to 3D
+                const ndcX = (clickX / window.innerWidth) * 2 - 1;
+                const ndcY = 1 - (clickY / window.innerHeight) * 2;
+                const clickRay = new THREE.Vector3(ndcX, ndcY, 0.5).unproject(camera);
+                const camPos = new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld);
+                const dir = clickRay.sub(camPos).normalize();
+                const dist = new THREE.Vector3(0, 0, 0).sub(camPos).length();
+                const clickWorld = camPos.clone().addScaledVector(dir, dist);
+
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const base = basePositions[i];
+                    const disp = displacements[i];
+                    const sv = scatterVelocities[i];
+
+                    const localPos = new THREE.Vector3().copy(base).add(disp);
+                    const worldPos = localPos.clone().applyMatrix4(group.matrixWorld);
+
+                    // Screen distance check
+                    const proj = worldPos.clone().project(camera);
+                    const sx = (proj.x * 0.5 + 0.5) * window.innerWidth;
+                    const sy = (-proj.y * 0.5 + 0.5) * window.innerHeight;
+                    const dx = clickX - sx;
+                    const dy = clickY - sy;
+                    const d2 = dx * dx + dy * dy;
+                    const cursorRadSq = CURSOR_RADIUS * CURSOR_RADIUS;
+
+                    if (d2 < cursorRadSq && d2 > 0) {
+                        const screenDist = Math.sqrt(d2);
+                        const force = (CURSOR_RADIUS - screenDist) / CURSOR_RADIUS * CLICK_FORCE;
+                        const radial = new THREE.Vector3().subVectors(worldPos, clickWorld);
+                        const rLen = radial.length();
+                        if (rLen > 0.001) {
+                            radial.normalize().multiplyScalar(force * 0.5);
+                            const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+                            radial.applyMatrix4(inv);
+                            sv.add(radial);
+                        }
+                    }
+                }
+            });
+
+            // ── TOUCH SUPPORT ───────────────────────────────────────────────
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const t = e.touches[0];
+                if (t) mouseScreen = { x: t.clientX, y: t.clientY };
+            }, { passive: false });
+            canvas.addEventListener('touchend', () => { mouseScreen = null; });
+            canvas.addEventListener('touchcancel', () => { mouseScreen = null; });
+
+            // ── RESIZE ──────────────────────────────────────────────────────
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            });
+        })();
+    </script>
+</body>
+
+</html>
